@@ -235,9 +235,7 @@ def retrieve_all_annotations(zotero_client: Zotero) -> List[Dict]:
     print(
         "Retrieving ALL annotations from Zotero Database. \nIt may take some time...\n"
     )
-    a = zotero_client.items(itemType="annotation", sort="dateModified", limit=1)
-    return a
-    # return zotero_client.everything(zotero_client.items(itemType="annotation"))
+    return zotero_client.everything(zotero_client.items(itemType="annotation"))
 
 
 def retrieve_all_notes(zotero_client: Zotero) -> List[Dict]:
