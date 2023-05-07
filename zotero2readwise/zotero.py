@@ -172,13 +172,17 @@ class ZoteroAnnotationsNotes:
 
         if text == "":
             raise ValueError("No annotation or note data is found.")
+        parent_item = data['parentItem']
+        # readwise will make the new item with source_url as a new article
+        source_url = f"zotero://open-pdf/library/items/{parent_item}"
+        annotation_url = f"zotero://open-pdf/library/items/{parent_item}?page={data.get('annotationPageLabel')}&annotation={data['key']}"
         return ZoteroItem(
             key=data["key"],
             version=data["version"],
             item_type=item_type,
             text=text,
             annotated_at=data["dateModified"],
-            annotation_url=annot["links"]["alternate"]["href"],
+            annotation_url=annotation_url,
             comment=comment,
             title=metadata["title"],
             tags=data["tags"],
@@ -231,7 +235,9 @@ def retrieve_all_annotations(zotero_client: Zotero) -> List[Dict]:
     print(
         "Retrieving ALL annotations from Zotero Database. \nIt may take some time...\n"
     )
-    return zotero_client.everything(zotero_client.items(itemType="annotation"))
+    a = zotero_client.items(itemType="annotation", sort="dateModified", limit=1)
+    return a
+    # return zotero_client.everything(zotero_client.items(itemType="annotation"))
 
 
 def retrieve_all_notes(zotero_client: Zotero) -> List[Dict]:
