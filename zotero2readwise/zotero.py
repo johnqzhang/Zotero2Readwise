@@ -190,7 +190,7 @@ class ZoteroAnnotationsNotes:
             document_type=metadata["document_type"],
             annotation_type=annotation_type,
             creators=metadata.get("creators"),
-            source_url=metadata["source_url"],
+            source_url=source_url,
             page_label=data.get("annotationPageLabel"),
             color=data.get("annotationColor"),
             relations=data["relations"],
