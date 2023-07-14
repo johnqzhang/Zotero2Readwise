@@ -18,6 +18,7 @@ class ReadwiseAPI:
     base_url: str = "https://readwise.io/api/v2"
     highlights: str = base_url + "/highlights/"
     books: str = base_url + "/books/"
+    export: str = base_url + "/export/"
 
 
 class Category(Enum):
@@ -89,7 +90,7 @@ class Readwise:
         return highlight_note if highlight_note else None
 
     def convert_zotero_annotation_to_readwise_highlight(
-        self, annot: ZoteroItem
+            self, annot: ZoteroItem
     ) -> ReadwiseHighlight:
 
         highlight_note = self.format_readwise_note(
@@ -115,7 +116,7 @@ class Readwise:
         )
 
     def post_zotero_annotations_to_readwise(
-        self, zotero_annotations: List[ZoteroItem]
+            self, zotero_annotations: List[ZoteroItem]
     ) -> None:
         print(
             f"\nReadwise: Push {len(zotero_annotations)} Zotero annotations/notes to Readwise...\n"
@@ -165,3 +166,38 @@ class Readwise:
             f"{len(self.failed_highlights)} highlights failed to format (hence failed to upload to Readwise).\n"
             f"Detail of failed items are saved into {out_filepath}"
         )
+
+    def _retrieve_all_highlights(self, updated_after=None) -> List[Dict]:
+        full_data = []
+        next_page_cursor = None
+        while True:
+            params = {}
+            if next_page_cursor:
+                params['pageCursor'] = next_page_cursor
+            if updated_after:
+                params['updatedAfter'] = updated_after
+            print("Making export api request with params " + str(params) + "...")
+            response = requests.get(
+                url=self.endpoints.export,
+                params=params,
+                headers=self._header,
+                verify=False
+            )
+            full_data.extend(response.json()['results'])
+            next_page_cursor = response.json().get('nextPageCursor')
+            if not next_page_cursor:
+                break
+        return full_data
+
+    def delete_highlight_with_online_zotero_url(self):
+        all_highlights = self._retrieve_all_highlights()
+        for book in all_highlights:
+            if book['source_url'] is not None and 'https://www.zotero.org/' in book['source_url']:
+                print(f"{book['title']}")
+                for h in book['highlights']:
+                    if 'https://www.zotero.org/' in h['url']:
+                        response = requests.delete(
+                            url= f"{self.endpoints.highlights}{h['id']}/",
+                            headers=self._header,
+                        )
+                        print(f"{response.status_code}-{h['url']}")

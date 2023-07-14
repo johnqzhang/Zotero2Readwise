@@ -52,3 +52,6 @@ class Zotero2Readwise:
             self.zotero.save_failed_items_to_json("failed_zotero_items.json")
 
         self.readwise.post_zotero_annotations_to_readwise(formatted_items)
+
+    def delete_highlights_with_online_zotero_url(self):
+        self.readwise.delete_highlight_with_online_zotero_url()

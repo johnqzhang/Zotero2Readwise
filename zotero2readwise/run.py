@@ -53,4 +53,5 @@ if __name__ == "__main__":
         include_annotations=args["include_annotations"],
         include_notes=args["include_notes"],
     )
+    # zt2rw.delete_highlights_with_online_zotero_url()
     zt2rw.run()
